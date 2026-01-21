@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шаманское колесо</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 20px auto;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .sector {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+        }
+        
+        .black { background: #000; top: 0; left: 0; }
+        .white { background: #fff; top: 0; right: 0; }
+        .red { background: #e30613; bottom: 0; left: 0; }
+        .yellow { background: #ffed00; bottom: 0; right: 0; }
+        
+        .center-circle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #0e9f4e;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .outer-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 20px solid #003da5;
+            border-radius: 50%;
+            box-sizing: border-box;
+            top: 0;
+            left: 0;
+            z-index: 5;
+        }
+        
+        .point {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #fff 0%, #ff0000 100%);
+            border-radius: 50%;
+            border: 3px solid #000;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            z-index: 20;
+            box-shadow: 0 0 20px rgba(255,0,0,0.8);
+        }
+        
+        .point.falling {
+            animation: fall 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .point.visible {
+            opacity: 1;
+        }
+        
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        .button {
+            display: block;
+            margin: 20px auto 10px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 30px;
+            color: #333;
+            display: none;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Шаманское колесо</h1>
+        
+        <div class="wheel-container">
+            <div class="wheel">
+                <div class="sector black"></div>
+                <div class="sector white"></div>
+                <div class="sector red"></div>
+                <div class="sector yellow"></div>
+                <div class="center-circle"></div>
+            </div>
+            <div class="outer-ring"></div>
+            <div class="point" id="point"></div>
+        </div>
+        
+        <button class="button" onclick="generatePosition()">Генерировать позицию</button>
+    </div>
+
+    <script>
+        const sectors = [
+            { name: 'Черный', color: '#000', angle: [180, 270] },
+            { name: 'Белый', color: '#fff', angle: [270, 360] },
+            { name: 'Красный', color: '#e30613', angle: [90, 180] },
+            { name: 'Желтый', color: '#ffed00', angle: [0, 90] }
+        ];
+
+        function generatePosition() {
+            const point = document.getElementById('point');
+            
+            point.classList.remove('visible', 'falling');
+            
+            setTimeout(() => {
+                const sector = sectors[Math.floor(Math.random() * 4)];
+                
+                const angleMin = sector.angle[0];
+                const angleMax = sector.angle[1];
+                const angle = angleMin + Math.random() * (angleMax - angleMin);
+                
+                const centerRadius = 40;
+                const outerRadius = 180;
+                const radius = centerRadius + Math.random() * (outerRadius - centerRadius);
+                
+                const angleRad = (angle * Math.PI) / 180;
+                const x = 200 + radius * Math.cos(angleRad);
+                const y = 200 + radius * Math.sin(angleRad);
+                
+                point.style.left = '200px';
+                point.style.top = '200px';
+                
+                requestAnimationFrame(() => {
+                    point.classList.add('visible', 'falling');
+                    point.style.left = x + 'px';
+                    point.style.top = y + 'px';
+                });
+            }, 50);
+        }
+    </script>
+</body>
+</html>
