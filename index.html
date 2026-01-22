@@ -221,7 +221,7 @@
             </div>
         </div>
         
-        <button class="button" id="spinButton" onclick="generatePosition()">Кинуть камушек</button>
+        <button class="button" id="spinButton" onclick="generatePosition()">Крутить колесо</button>
     </div>
     
     <div class="point" id="point"></div>
@@ -233,6 +233,33 @@
             { name: 'Красный', color: '#e30613', angle: [90, 180] },
             { name: 'Желтый', color: '#ffed00', angle: [0, 90] }
         ];
+
+        let lastSector = null;
+        let lastAngle = null;
+        let lastRadius = null;
+
+        function updatePointPosition() {
+            if (lastSector === null) return;
+            
+            const point = document.getElementById('point');
+            const wheelContainer = document.getElementById('wheelContainer');
+            
+            const wheelRect = wheelContainer.getBoundingClientRect();
+            const wheelCenterX = wheelRect.left + wheelRect.width / 2;
+            const wheelCenterY = wheelRect.top + wheelRect.height / 2;
+            
+            const wheelSize = wheelRect.width;
+            const radius = (lastRadius / 100) * wheelSize;
+            
+            const angleRad = (lastAngle * Math.PI) / 180;
+            const x = wheelCenterX + radius * Math.cos(angleRad);
+            const y = wheelCenterY + radius * Math.sin(angleRad);
+            
+            point.style.left = x + 'px';
+            point.style.top = y + 'px';
+        }
+
+        window.addEventListener('resize', updatePointPosition);
 
         function generatePosition() {
             const point = document.getElementById('point');
@@ -253,10 +280,12 @@
             
             setTimeout(() => {
                 const sector = sectors[Math.floor(Math.random() * 4)];
+                lastSector = sector;
                 
                 const angleMin = sector.angle[0];
                 const angleMax = sector.angle[1];
                 const angle = angleMin + Math.random() * (angleMax - angleMin);
+                lastAngle = angle;
                 
                 const wheelRect = wheelContainer.getBoundingClientRect();
                 const wheelCenterX = wheelRect.left + wheelRect.width / 2;
@@ -266,6 +295,7 @@
                 const centerRadius = wheelSize * 0.12;
                 const outerRadius = wheelSize * 0.38;
                 const radius = centerRadius + Math.random() * (outerRadius - centerRadius);
+                lastRadius = (radius / wheelSize) * 100;
                 
                 const angleRad = (angle * Math.PI) / 180;
                 const endX = wheelCenterX + radius * Math.cos(angleRad);
